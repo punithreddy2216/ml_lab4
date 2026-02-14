@@ -9,22 +9,42 @@ Original file is located at
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix,classification_report,accuracy_score
 
-df=pd.read_csv('arrhythmia.data', na_values='?')
+df=pd.read_csv('arrhythmia.data',na_values='?')
 df=df.dropna()
 X=df.iloc[:,:279]
 Y=df.iloc[:,279]
-x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=0.3,random_state=42)
-k=3
-neigh=KNeighborsClassifier(n_neighbors=k)
-neigh.fit(x_train,y_train)
-print("Accuracy:", neigh.score(x_test, y_test))
-y_pred =neigh.predict(x_test)
-mat=confusion_matrix(y_test,y_pred)
-report=classification_report(y_test,y_pred)
-print("Confusion Matrix:\n",mat)
-print("\nClassification Report:\n",report)
+x_train,x_test,y_train,y_test=train_test_split(X,Y,test_size=.3)
+# function for knn
+def knn(x_train,x_test,y_train,y_test):
+  neigh=KNeighborsClassifier(n_neighbors=3)
+  neigh.fit(x_train,y_train)
+  y_pred=neigh.predict(x_test)
+  return y_pred,accuracy_score(y_test,y_pred)
+
+# function to generate confusion matrix 
+def confusion__matrix(y_pred,y_test):
+   mat=confusion_matrix(y_test,y_pred)
+   report=classification_report(y_test,y_pred)
+   return mat,report
+
+# body
+y_pred,accuracy=knn(x_train,x_test,y_train,y_test)
+print("Accuracy for the test data is ",accuracy)
+y_pre,accur=knn(x_train,x_train,y_train,y_train)
+print("Accuracy for the train data :",accur)
+
+mat1,r1=confusion__matrix(y_pred,y_test)
+mat2,r2=confusion__matrix(y_pre,y_train)
+print("confusion matrix for test data is :",mat1)
+print("confusion matrix for train data is :",mat2)
+
+print("classification report for test data is:",r1)
+print("classification report for train data is:",r2)
+
+
+#conclusion
+print("from these measures since k=3 the model is overfitting")
